@@ -1,0 +1,86 @@
+---
+
+- name: Upgrade F5
+  hosts: all
+  gather_facts: false
+  collections:
+    - f5networks.f5_modules
+
+
+  vars_files:
+    - vault
+
+  vars:
+    provider:
+      server: f51.example.com
+      server_port: 443
+      user: admin
+      password: "{{ password }}"
+      validate_certs: no
+
+  vars_prompt:
+    - name: Choose version to install
+      prompt: "Type ISO version (i.e. 15.1.3-0.0.11)"
+      private: no
+
+
+  tasks:
+
+    # Pre upgrade tasks
+    - name: "Task 1: Check failover state"
+      shell: tmsh show sys failover | awk '{print $2}'
+      register: failover_state
+
+    - block:
+      - name: "Task 2: Check running config"
+        command: tmsh load sys config verify
+   
+      - name: "Task 3: Waiting for configuration to load"
+        wait_for:
+          timeout: 30
+        delegate_to: localhost
+
+      - name: "Task 4: Get current time"
+        command: date "+%Y_%m_%d_%H%M"
+        register: date
+
+      - name: "Task 5: Download a new UCS"
+        bigip_ucs_fetch:
+          src: "{{ inventory_hostname + '-' + date.stdout +  '.ucs' }}"
+          dest: "{{ '/Users/xyz/Downloads/' + inventory_hostname + '-' + date.stdout +  '.ucs' }}"
+          provider: "{{ provider }}"
+        delegate_to: localhost
+
+      - name: "Task 6: Download a qkview"
+        bigip_qkview:
+          asm_request_log: yes
+          exclude:
+            - audit
+            - secure
+          dest: "{{ '/Users/xyz/Downloads' + inventory_hostname + '-' + date.stdout +  '.qkview' }}"
+          provider: "{{ provider }}"
+        delegate_to: localhost
+
+      - name: "Task 7: Upload image to F5"
+        bigip_software_image:
+         image: "{{ '/Users/xyz/Downloads/BIGIP-' + version  + '.iso' }}"
+         provider: "{{ provider }}"
+        delegate_to: localhost
+      
+      - name: "Task 8: Wait For Confirmation"
+        pause:
+          prompt: "Press a key to continue upgrading F5..."
+
+
+      # Upgrade
+      - name: "Task 9: Install BIG-IP"
+        bigip_software_install:
+          image: "{{ 'BIGIP-' + version  + '.iso' }}"
+          state: activated
+          volume: "HD1.2"                                     
+          provider: "{{ provider }}"
+        delegate_to: localhost
+        async: 45
+        poll: 0
+
+      when: failover_state.stdout  == 'standby'
