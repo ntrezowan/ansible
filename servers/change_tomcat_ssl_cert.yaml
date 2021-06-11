@@ -1,4 +1,5 @@
 ---
+# /opt/tomcat/conf/server.xml is configured to use /home/tomcat/ssl.crt and /home/tomcat/ssl.key.
 
 - name: Renew SSL certificate of Tomcat server
   hosts: all
