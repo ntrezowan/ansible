@@ -1,4 +1,5 @@
 ---
+# /etc/httpd/conf.d/ssl.conf is configured to use /home/apache/ssl.crt and /home/apache/ssl.key
 
 - name: Renew SSL certificate of Apache server
   hosts: all
