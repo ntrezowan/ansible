@@ -1,0 +1,57 @@
+---
+
+- name: Renew SSL certificate of Tomcat server
+  hosts: all
+  gather_facts: no
+  
+
+  tasks:  
+
+  - name: "Task 1: Copy new cert and set permission"
+    become: yes
+    become_user: tomcat 
+    become_method: sudo 
+    ansible.builtin.copy:
+      src: /Users/xyz/Downloads/site_2018.crt
+      dest: /home/apache/site_2018.crt
+      owner: apache
+      group: apache
+      mode: '400'
+  
+  - name: "Task 2: Copy new key and set permission"
+    become: yes
+    become_user: tomcat 
+    become_method: sudo 
+    ansible.builtin.copy:
+      src: /Users/xyz/Downloads/site_2018.key
+      dest: /home/apache/site_2018.key
+      owner: apache
+      group: apache
+      mode: '400'
+
+  - name: "Task 3: Change symbolic link to point to new crt"
+    become: yes
+    become_user: tomcat 
+    become_method: sudo 
+    shell: ln -sf /home/apache/site_2018.crt /home/apache/ssl.crt
+  
+  - name: "Task 4: Change symbolic link to point to new key"
+    become: yes
+    become_user: tomcat 
+    become_method: sudo 
+    shell: ln -sf /home/apache/site_2018.key /home/apache/ssl.key
+  
+  - name: "Task 5: Stop Tomcat"
+    become: yes
+    become_user: tomcat 
+    become_method: sudo 
+    shell: /bin/systemctl stop tomcat
+  
+  - name: "Task 6: Start Tomcat"
+    become: yes
+    become_user: tomcat 
+    become_method: sudo 
+    shell: /bin/systemctl start tomcat
+
+  - name: "Task 7: Check expire date of new cert"
+    shell: openssl s_client -connect example.com:8443 2>/dev/null | openssl x509 -noout -dates
