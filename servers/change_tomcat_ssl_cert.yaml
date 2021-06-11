@@ -13,9 +13,9 @@
     become_method: sudo 
     ansible.builtin.copy:
       src: /Users/xyz/Downloads/site_2018.crt
-      dest: /home/apache/site_2018.crt
-      owner: apache
-      group: apache
+      dest: /home/tomcat/site_2018.crt
+      owner: tomcat
+      group: tomcat
       mode: '400'
   
   - name: "Task 2: Copy new key and set permission"
@@ -24,22 +24,22 @@
     become_method: sudo 
     ansible.builtin.copy:
       src: /Users/xyz/Downloads/site_2018.key
-      dest: /home/apache/site_2018.key
-      owner: apache
-      group: apache
+      dest: /home/tomcat/site_2018.key
+      owner: tomcat
+      group: tomcat
       mode: '400'
 
   - name: "Task 3: Change symbolic link to point to new crt"
     become: yes
     become_user: tomcat 
     become_method: sudo 
-    shell: ln -sf /home/apache/site_2018.crt /home/apache/ssl.crt
+    shell: ln -sf /home/tomcat/site_2018.crt /home/tomcat/ssl.crt
   
   - name: "Task 4: Change symbolic link to point to new key"
     become: yes
     become_user: tomcat 
     become_method: sudo 
-    shell: ln -sf /home/apache/site_2018.key /home/apache/ssl.key
+    shell: ln -sf /home/tomcat/site_2018.key /home/tomcat/ssl.key
   
   - name: "Task 5: Stop Tomcat"
     become: yes
