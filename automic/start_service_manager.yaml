@@ -1,0 +1,35 @@
+---
+
+- name: Start Automic server
+  hosts: all
+  gather_facts: no
+  connection: ssh
+
+  vars_files:
+    - automic_vars.yaml
+    - vault
+
+  tasks:  
+  - name: Start Service Manager
+    become: yes
+    become_user: automic 
+    become_method: sudo 
+    shell: /opt/automic/servicemanager/bin/ucybsmgr server1&
+  
+  - name: Wait for all agents to become online
+    wait_for:
+      timeout: 200
+ 
+  - name: Stop ZDU WP and CP
+    become: yes
+    become_user: automic
+    become_method: sudo 
+    shell: |
+        /apps/automic/servicemanager/bin/ucybsmcl -C STOP_PROCESS -h localhost:8871 -n server1 -s "UC4 WP1_ZDU" -p "{{ password}}"
+        /apps/automic/servicemanager/bin/ucybsmcl -C STOP_PROCESS -h localhost:8871 -n server1 -s "UC4 WP2_ZDU" -p "Cr4n|St2r43ds"
+        /apps/automic/servicemanager/bin/ucybsmcl -C STOP_PROCESS -h localhost:8871 -n server1 -s "UC4 WP3_ZDU" -p "Cr4n|St2r43ds"
+        /apps/automic/servicemanager/bin/ucybsmcl -C STOP_PROCESS -h localhost:8871 -n server1 -s "UC4 WP4_ZDU" -p "Cr4n|St2r43ds"
+        /apps/automic/servicemanager/bin/ucybsmcl -C STOP_PROCESS -h localhost:8871 -n server1 -s "UC4 CP1_ZDU" -p "Cr4n|St2r43ds"
+        /apps/automic/servicemanager/bin/ucybsmcl -C STOP_PROCESS -h localhost:8871 -n server1 -s "UC4 CP2_ZDU" -p "Cr4n|St2r43ds"
+
+
