@@ -1,5 +1,0 @@
-[SAN1]
-f5san1 ansible_host=10.1.114.11
-
-[SAN02]
-f5san02 ansible_host=10.1.114.12
