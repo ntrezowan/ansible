@@ -1,0 +1,18 @@
+hostname: f5san1
+
+# HTTPAPI Connection
+ansible_host: f5san1.its.fsu.edu
+ansible_user: admin
+ansible_httpapi_password: 
+ansible_httpapi_port: 443
+ansible_network_os: f5networks.f5_bigip.bigip
+ansible_httpapi_use_ssl: yes
+ansible_httpapi_validate_certs: no
+
+# SSH Connection
+provider:
+  server: 10.1.114.11
+  server_port: 443
+  user: admin
+  password: 
+  validate_certs: no
