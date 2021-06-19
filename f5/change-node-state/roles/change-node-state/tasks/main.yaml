@@ -1,0 +1,23 @@
+---
+
+- name: Changing node state
+  bigip_pool_member:
+    state: "{{ node_state }}"
+    partition: "{{partition_name}}"
+    pool: "{{ pool_name }}"
+    address: "{{ node_host }}"
+    port: "{{node_port}}"
+    provider: "{{ provider }}"
+  delegate_to: localhost
+  
+- name: Syncing config between F5 units
+  bigip_configsync_action:
+    device_group: device-group-a-failover
+    sync_device_to_group: yes
+    provider: "{{ provider }}"
+  delegate_to: localhost
+
+- name: Summary
+  ansible.builtin.debug:
+    msg: 
+    - "{{ pool_name }}/{{ node_host }}:{{node_port}} status has changed to {{ node_state }}." 
